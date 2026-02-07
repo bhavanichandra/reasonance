@@ -1,0 +1,76 @@
+@import 'tailwindcss';
+@plugin "tailwindcss-primeui";
+@plugin "tailwind-scrollbar";
+
+@theme {
+  --animate-fade-in: fadeIn 0.6s ease-out forwards;
+  --animate-slide-up: slideUp 0.3s ease-in-out;
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(1rem);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+
+@layer base {
+  html {
+    @apply antialiased;
+  }
+
+  body {
+    @apply bg-slate-950 text-white;
+  }
+}
+
+.mind-card-drag-preview {
+  width: min(22rem, 80vw);
+  border: 1px solid rgba(52, 102, 102, 0.85);
+  border-radius: 1rem;
+  background: rgba(7, 27, 34, 0.95);
+  color: #d8f1f1;
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.45);
+  padding: 0.75rem;
+}
+
+/* Custom Dialog Styling */
+.mind-palace-dialog .p-dialog {
+  @apply bg-[#041216] shadow-[0_0_40px_rgba(0,0,0,0.6)];
+  border: 1px solid rgba(47, 111, 118, 0.3);
+  border-radius: 0.75rem;
+  overflow: hidden;
+}
+
+.mind-palace-dialog .p-dialog-header {
+  @apply border-b border-[#2f6f76]/20 bg-[#071f23] px-6 py-4 text-[#ebffff];
+}
+
+.mind-palace-dialog .p-dialog-content {
+  @apply bg-[#041216] px-6 py-6 text-[#bce7ea];
+}
+
+.mind-palace-dialog .p-dialog-header-icon {
+  @apply text-[#50ffff] hover:bg-[#2f6f76]/30 hover:text-white focus:ring-0;
+}
+
+.mind-palace-dialog .p-dialog-mask {
+  @apply bg-black/60 backdrop-blur-sm;
+}

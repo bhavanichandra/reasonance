@@ -1,0 +1,140 @@
+<div class="w-full">
+  <p-fileUpload
+    mode="advanced"
+    [customUpload]="true"
+    [multiple]="true"
+    accept=".txt,.pdf,.md,.doc,.docx"
+    [showUploadButton]="false"
+    [showCancelButton]="false"
+    (onSelect)="onFilesSelected($event)"
+    (onRemove)="onFileRemoved($event)"
+    (onClear)="onFilesCleared()"
+    styleClass="w-full"
+    chooseStyleClass="hidden"
+    [unstyled]="true"
+    [pt]="{
+      header: { class: 'hidden' },
+      content: { class: 'p-0 border-0 bg-transparent w-full' },
+      root: { class: 'border-0 bg-transparent w-full' },
+      fileList: { class: 'hidden' },
+      input: { class: 'hidden' },
+    }"
+  >
+    <ng-template
+      pTemplate="content"
+      let-chooseCallback="chooseCallback"
+      let-removeFileCallback="removeFileCallback"
+    >
+      <div
+        (dragover)="onDragOver($event)"
+        (dragleave)="onDragLeave($event)"
+        (drop)="onDragLeave($event)"
+        (click)="chooseCallback()"
+        [class]="
+          'rounded-2xl border-2 border-dashed text-center transition-all duration-200 cursor-pointer w-full ' +
+          (variant() === 'embedded' ? 'p-5 md:p-6' : 'p-10') +
+          ' ' +
+          (isDragging()
+            ? 'border-[#2ee8e8] bg-[#0d3a42]/45 shadow-[0_0_24px_rgba(20,220,220,0.3)]'
+            : 'border-[#35666b] bg-black/20 hover:border-[#20d0d0] hover:bg-[#0a262d]/50')
+        "
+      >
+        <div
+          [class]="
+            'mx-auto mb-4 grid place-items-center rounded-2xl border border-[#2f6e74] bg-[#0a2a31] text-[#6de7e7] ' +
+            (variant() === 'embedded' ? 'h-10 w-10 text-lg' : 'h-14 w-14 text-2xl')
+          "
+        >
+          ⇪
+        </div>
+
+        @if (selectedFiles().length === 0) {
+          <p
+            [class]="
+              variant() === 'embedded'
+                ? 'text-sm font-bold text-[#ebffff] md:text-base'
+                : 'text-lg font-bold text-[#ebffff]'
+            "
+          >
+            Drag files here or click to browse
+          </p>
+          <p class="mt-2 text-xs uppercase tracking-[0.16em] text-[#6ea8b0]">
+            Supports PDF, TXT, MD, DOC up to 50MB
+          </p>
+        } @else {
+          <p class="text-lg font-bold text-[#cbffff]">Drop to add more files</p>
+        }
+      </div>
+
+      @if (selectedFiles().length > 0) {
+        <div class="mt-5 rounded-2xl border border-[#2f5e66]/70 bg-[#061a20]/60 p-3 w-full">
+          <div class="mb-3 flex items-center justify-between">
+            <h3 class="text-sm font-bold uppercase tracking-[0.16em] text-[#9cd3d8]">
+              Selected Files
+            </h3>
+            <span
+              class="rounded-full border border-[#2f6f76] bg-black/25 px-2 py-1 text-xs text-[#c8eef1]"
+              >{{ selectedFiles().length }}</span
+            >
+          </div>
+
+          <div
+            [class]="
+              variant() === 'embedded'
+                ? 'max-h-36 space-y-2 overflow-y-auto pr-1'
+                : 'max-h-64 space-y-2 overflow-y-auto pr-1'
+            "
+          >
+            @for (file of selectedFiles(); track $index) {
+              <div
+                class="flex items-center justify-between rounded-xl border border-[#2e5b62]/75 bg-[#081e25]/85 p-3 transition-colors hover:bg-[#0c2730]"
+              >
+                <div class="min-w-0">
+                  <p class="truncate text-sm font-semibold text-[#e8ffff]">{{ file.name }}</p>
+                  <p class="text-xs text-[#83acb5]">{{ (file.size / 1024).toFixed(1) }} KB</p>
+                </div>
+                <button
+                  class="grid h-9 w-9 place-items-center rounded-full border border-[#3b6970] bg-[#0b2630] text-[#ff8bad] transition-colors hover:border-[#ff8bad] hover:text-[#ffb0c7] cursor-pointer"
+                  (click)="removeFile(file, removeFileCallback)"
+                  title="Remove file"
+                >
+                  <ng-icon name="phosphorTrash" class="text-base"></ng-icon>
+                </button>
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </ng-template>
+  </p-fileUpload>
+
+  @if (errorMessage()) {
+    <div
+      class="mt-4 rounded-lg border border-red-400/35 bg-red-950/30 px-3 py-2 text-sm text-red-200 w-full"
+    >
+      {{ errorMessage() }}
+    </div>
+  }
+
+  <div
+    [class]="
+      variant() === 'embedded' ? 'mt-5 flex justify-center w-full' : 'mt-6 flex justify-end w-full'
+    "
+  >
+    <p-button
+      [label]="
+        uploading()
+          ? 'Creating...'
+          : variant() === 'embedded'
+            ? 'Enter the Thinking Space'
+            : 'Create Space'
+      "
+      icon="pi pi-arrow-right"
+      iconPos="right"
+      [disabled]="selectedFiles().length === 0 || uploading()"
+      (click)="upload()"
+      [loading]="uploading()"
+      styleClass="!rounded-full !border !border-[#16d6d6]/55 !bg-gradient-to-r !from-[#0cc9c9] !to-[#0ab2b2] !px-5 !py-2 !text-sm !font-bold !uppercase !tracking-[0.08em] !text-[#032527] !shadow-[0_0_24px_rgba(15,216,216,0.35)]"
+    ></p-button>
+  </div>
+</div>

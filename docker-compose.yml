@@ -1,0 +1,116 @@
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    container_name: reasonance-db
+    ports:
+      - "5432:5432"
+    env_file: .env
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks: [reasonance]
+
+  rustfs:
+    image: rustfs/rustfs:latest
+    container_name: reasonance-rustfs
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    env_file: .env
+    environment:
+      RUSTFS_ACCESS_KEY: ${RUSTFS_ACCESS_KEY}
+      RUSTFS_SECRET_KEY: ${RUSTFS_SECRET_KEY}
+      RUSTFS_VOLUMES: /data
+      RUSTFS_ADDRESS: :9000
+      RUSTFS_CONSOLE_ENABLE: "true"
+    volumes:
+      - rustfs_data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    networks: [reasonance]
+
+  # --- RustFS bucket bootstrap ---
+  rustfs-init:
+    image: minio/mc:latest
+    container_name: reasonance-rustfs-init
+    env_file: .env
+    depends_on:
+      rustfs:
+        condition: service_started
+    entrypoint: >
+      /bin/sh -c "
+      echo 'Waiting for RustFS...';
+      sleep 8;
+      mc alias set rustfs http://rustfs:9000 ${RUSTFS_ACCESS_KEY} ${RUSTFS_SECRET_KEY};
+      mc mb rustfs/${RUSTFS_BUCKET} --ignore-existing;
+      echo 'RustFS bucket ready';
+      "
+    networks: [reasonance]
+
+  # Ollama removed: using Gemini provider instead
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: reasonance-backend
+    ports:
+      - "8080:8080"
+    env_file: .env
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      DB_HOST: db
+      DB_PORT: 5432
+      RUSTFS_URL: http://rustfs:9000
+      RUSTFS_BUCKET: ${RUSTFS_BUCKET}
+      RUSTFS_ACCESS_KEY: ${RUSTFS_ACCESS_KEY}
+      RUSTFS_SECRET_KEY: ${RUSTFS_SECRET_KEY}
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+      LLM_PROVIDER: ${LLM_PROVIDER}
+      GEMINI_MODEL: ${GEMINI_MODEL}
+    depends_on:
+      db:
+        condition: service_healthy
+      rustfs-init:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks: [reasonance]
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        BACKEND_API_URL: ${BACKEND_API_URL:-http://backend:8080/api/v1}
+    container_name: reasonance-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks: [reasonance]
+
+networks:
+  reasonance:
+    driver: bridge
+
+volumes:
+  db_data:
+  rustfs_data:
