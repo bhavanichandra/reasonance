@@ -1,0 +1,66 @@
+{
+  "name": "resasonance",
+  "version": "1.0.0",
+  "scripts": {
+    "ng": "ng",
+    "start": "ng serve",
+    "build": "ng build",
+    "watch": "ng build --watch --configuration development",
+    "test": "ng test"
+  },
+  "prettier": {
+    "printWidth": 100,
+    "singleQuote": true,
+    "overrides": [
+      {
+        "files": "*.html",
+        "options": {
+          "parser": "angular"
+        }
+      }
+    ]
+  },
+  "private": true,
+  "packageManager": "npm@11.5.2",
+  "dependencies": {
+    "@angular/animations": "^21.1.0",
+    "@angular/common": "^21.0.0",
+    "@angular/compiler": "^21.0.0",
+    "@angular/core": "^21.0.0",
+    "@angular/forms": "^21.0.0",
+    "@angular/platform-browser": "^21.0.0",
+    "@angular/router": "^21.0.0",
+    "@ng-icons/core": "^33.0.0",
+    "@ng-icons/phosphor-icons": "^33.0.0",
+    "@primeuix/themes": "^2.0.2",
+    "3d-force-graph": "^1.79.0",
+    "animejs": "^4.2.2",
+    "dayjs": "^1.11.19",
+    "file-type": "^21.3.0",
+    "hotkeys-js": "^4.0.0",
+    "immer": "^11.1.3",
+    "jose": "^6.1.3",
+    "lodash-es": "^4.17.22",
+    "primeng": "^21.0.2",
+    "rxjs": "~7.8.0",
+    "tailwind-scrollbar": "^4.0.2",
+    "tailwindcss-primeui": "^0.6.1",
+    "tslib": "^2.3.0",
+    "uuid": "^13.0.0"
+  },
+  "devDependencies": {
+    "@angular/build": "^21.0.5",
+    "@angular/cli": "^21.0.5",
+    "@angular/compiler-cli": "^21.0.0",
+    "@tailwindcss/postcss": "^4.1.18",
+    "jsdom": "^27.1.0",
+    "postcss": "^8.5.6",
+    "prettier": "^3.8.0",
+    "tailwindcss": "^4.1.18",
+    "typescript": "~5.9.2",
+    "vitest": "^4.0.8"
+  },
+  "overrides": {
+    "@modelcontextprotocol/sdk": "^1.26.0"
+  }
+}

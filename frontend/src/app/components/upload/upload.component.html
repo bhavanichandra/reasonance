@@ -1,0 +1,29 @@
+<div class="relative min-h-screen overflow-x-hidden overflow-y-auto text-[#d8efef]">
+  <div class="absolute inset-0 bg-[radial-gradient(circle_at_20%_10%,rgba(0,255,231,0.14),transparent_35%),radial-gradient(circle_at_80%_85%,rgba(0,255,231,0.08),transparent_40%),linear-gradient(135deg,#03090b,#061417_40%,#020607_100%)]"></div>
+  <div class="absolute inset-0 bg-[linear-gradient(to_right,rgba(130,180,180,0.1)_1px,transparent_1px),linear-gradient(to_bottom,rgba(130,180,180,0.08)_1px,transparent_1px)] [background-size:48px_48px] opacity-25"></div>
+  <div class="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_center,transparent_20%,rgba(0,0,0,0.7)_100%)]"></div>
+
+  <div class="relative z-10 mx-auto flex min-h-screen w-full max-w-4xl items-center justify-center px-4 py-8">
+    <div class="w-full rounded-3xl border border-[#4f8383]/35 bg-[#041216]/85 shadow-[0_20px_60px_rgba(0,0,0,0.45)] backdrop-blur-md">
+      <div class="border-b border-[#2f5a5a]/70 bg-[linear-gradient(90deg,rgba(8,40,45,0.95),rgba(6,24,28,0.95))] px-6 py-6 lg:px-8">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p class="text-3xl font-black tracking-wide text-[#ebffff]">Reasonance</p>
+            <p class="mt-1 text-xs uppercase tracking-[0.24em] text-[#57b7b7]">Create New Space</p>
+            <p class="mt-2 text-sm text-[#8cb8c0]">Upload evidence files to initialize your investigation workspace.</p>
+          </div>
+          <button
+            class="rounded-full border border-[#2f6d75] bg-black/20 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.12em] text-[#c8ffff] transition-colors hover:bg-[#103038]"
+            (click)="backHome()"
+          >
+            Back to Spaces
+          </button>
+        </div>
+      </div>
+
+      <div class="px-6 py-6 lg:px-8 lg:py-7">
+        <app-upload-form variant="page" (success)="onUploadSuccess($event)"></app-upload-form>
+      </div>
+    </div>
+  </div>
+</div>

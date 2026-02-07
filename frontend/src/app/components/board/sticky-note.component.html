@@ -1,0 +1,187 @@
+<div
+  class="group relative w-full max-w-[780px]"
+  cdkDropList
+  id="activeInsightEvidenceDropList"
+  [cdkDropListConnectedTo]="['evidenceSourceList']"
+  [cdkDropListSortingDisabled]="true"
+  [cdkDropListDisabled]="readonly() || !isActiveTurn() || conclusion().locked || !isSelectedInsight() || !acceptEvidenceDrop()"
+  (cdkDropListDropped)="onDrop($event)"
+>
+  <div
+    [class]="
+      (conclusion().locked
+        ? 'border-[#3f5f66] bg-[#0d1c21]/60 text-[#6f8f97] '
+        : 'border-[#3f7a7a]/55 bg-[#0a1f24]/88 text-[#d8f1f1] ') +
+      'relative min-h-[180px] w-full overflow-hidden rounded-3xl border p-3 shadow-[0_16px_36px_rgba(0,0,0,0.35)] backdrop-blur-sm transition-colors duration-200'
+    "
+  >
+    <div class="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-[#2de6e6]/55 to-transparent"></div>
+
+    <div class="mb-3 flex items-center justify-between gap-2">
+      <div class="flex items-center gap-2">
+        @if (!readonly()) {
+          <div cdkDragHandle class="h-4 w-4 rounded-full border border-[#4ababa]/55 bg-[#0e3138]"></div>
+        }
+        <span class="rounded-full border border-[#3e7474]/60 bg-black/25 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-[#88cdcd]">
+          {{ conclusion().tags?.[0] || 'Technical' }}
+        </span>
+        @if (conclusion().confidence) {
+          <span class="rounded-full border border-[#2f6f76] bg-black/20 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#8bd6dd]">
+            {{ conclusion().confidence }}
+          </span>
+        }
+      </div>
+    </div>
+
+    <h3 class="mb-2 text-2xl font-black leading-tight text-[#f0ffff]">
+      {{ conclusion().summary || (conclusion().content | slice: 0 : 44) }}
+    </h3>
+
+    <div class="mb-3 pr-1">
+      <p class="text-xs leading-relaxed text-[#9cc1c9]">
+        {{ conclusion().content }}
+      </p>
+    </div>
+
+    <div class="mt-4 flex items-center justify-between text-[11px] text-[#7cabaf]">
+      <span>Generated in Turn {{ conclusion().turn }}</span>
+      <span class="font-semibold uppercase tracking-[0.12em]">ID {{ conclusion().id | slice: 0 : 6 }}</span>
+    </div>
+
+    @if (pendingEvidenceCount() > 0) {
+      <div class="mt-3 rounded-xl border border-[#18d5d5]/45 bg-[#0b363d]/80 px-3 py-2 text-xs font-bold text-[#baffff]">
+        {{ pendingEvidenceCount() }} pending signals linked
+      </div>
+    }
+
+    @if (conclusion().locked) {
+      <div class="pointer-events-none absolute -right-6 -top-6 h-24 w-24 rotate-12 border border-[#5a7a82]/65 bg-[#12323b]/85"></div>
+    }
+  </div>
+
+  @if (showEvidencePanel() && (conclusion().evidences.length > 0 || pendingEvidenceItems().length > 0)) {
+    <div class="mt-3 rounded-2xl border border-dashed border-[#2c5e67]/75 bg-black/20 p-2">
+      @if (conclusion().evidences.length > 0) {
+        <div class="space-y-2">
+          @for (ev of conclusion().evidences; track ev) {
+            <button
+              class="w-full rounded-xl border border-[#2f646e]/70 bg-[#0b2128]/80 px-3 py-2 text-left transition-colors hover:border-[#3f8a96]"
+              (click)="openEvidenceDialog(ev)"
+            >
+              <p class="text-sm font-semibold text-[#dbf6f8]">{{ ev.summary || (ev.content | slice: 0 : 40) }}</p>
+              <p class="mt-1 line-clamp-2 text-xs text-[#86adb6]">{{ ev.content }}</p>
+            </button>
+          }
+        </div>
+      } @else if (pendingEvidenceItems().length > 0) {
+        <div class="space-y-2">
+          @for (ev of pendingEvidenceItems(); track ev.id) {
+            <div class="w-full rounded-xl border border-[#2f646e]/70 bg-[#0b2128]/80 px-3 py-2 text-left">
+              <p class="text-sm font-semibold text-[#dbf6f8]">{{ ev.summary || (ev.content | slice: 0 : 40) }}</p>
+              <p class="mt-1 line-clamp-2 text-xs text-[#86adb6]">{{ ev.content }}</p>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+
+  @if (conclusion().locked && conclusion().whatIf) {
+    <div class="mt-3">
+      <app-what-if [node]="conclusion().whatIf!" />
+    </div>
+  }
+
+  <p-dialog
+    [visible]="evidenceDialogOpen()"
+    (visibleChange)="evidenceDialogOpen.set($event)"
+    (onHide)="closeEvidenceDialog()"
+    [modal]="true"
+    [draggable]="false"
+    [resizable]="false"
+    [showHeader]="false"
+    [dismissableMask]="true"
+    [closeOnEscape]="true"
+    [unstyled]="true"
+    [pt]="{
+      root: {
+        class:
+          'bg-slate-950 text-white w-screen h-screen shadow-2xl border border-slate-700',
+      },
+      mask: { class: 'bg-black/50 backdrop-blur-sm' },
+    }"
+  >
+    <div class="flex items-center justify-between border-b border-slate-800 px-6 py-4">
+      <div>
+        <p class="text-sm font-bold text-white">Signal Detail</p>
+        <p class="text-xs text-slate-400">Read-only signal content</p>
+      </div>
+      <p-button
+        (click)="closeEvidenceDialog()"
+        class="text-slate-300 hover:text-white transition-colors"
+        [rounded]="true"
+        [text]="true"
+        icon="pi pi-times"
+      ></p-button>
+    </div>
+
+    <div class="h-[calc(100vh-64px)] overflow-y-auto px-6 py-6">
+      @if (selectedEvidence()) {
+        <div class="space-y-2">
+          <p class="text-sm font-semibold text-slate-200">
+            {{ selectedEvidence()!.summary || (selectedEvidence()!.content | slice: 0 : 80) }}
+          </p>
+          <p class="text-xs leading-relaxed text-slate-400">
+            {{ selectedEvidence()!.content }}
+          </p>
+        </div>
+      }
+    </div>
+  </p-dialog>
+
+  <p-dialog
+    [visible]="allEvidenceDialogOpen()"
+    (visibleChange)="allEvidenceDialogOpen.set($event)"
+    [modal]="true"
+    [draggable]="false"
+    [resizable]="false"
+    [showHeader]="false"
+    [dismissableMask]="true"
+    [closeOnEscape]="true"
+    [unstyled]="true"
+    [pt]="{
+      root: {
+        class:
+          'bg-slate-950 text-white w-screen h-screen shadow-2xl border border-slate-700',
+      },
+      mask: { class: 'bg-black/50 backdrop-blur-sm' },
+    }"
+  >
+    <div class="flex items-center justify-between border-b border-slate-800 px-6 py-4">
+      <div>
+        <p class="text-sm font-bold text-white">All Signals</p>
+        <p class="text-xs text-slate-400">Signals attached to this insight</p>
+      </div>
+      <p-button
+        (click)="allEvidenceDialogOpen.set(false)"
+        class="text-slate-300 hover:text-white transition-colors"
+        [rounded]="true"
+        [text]="true"
+        icon="pi pi-times"
+      ></p-button>
+    </div>
+
+    <div class="h-[calc(100vh-64px)] space-y-3 overflow-y-auto px-6 py-6">
+      @for (ev of conclusion().evidences; track ev) {
+        <div class="rounded-lg border border-slate-800 bg-slate-900/60 p-4">
+          <p class="mb-2 text-sm font-semibold text-slate-200">
+            {{ ev.summary || (ev.content | slice: 0 : 80) }}
+          </p>
+          <p class="text-xs leading-relaxed text-slate-400">
+            {{ ev.content }}
+          </p>
+        </div>
+      }
+    </div>
+  </p-dialog>
+</div>

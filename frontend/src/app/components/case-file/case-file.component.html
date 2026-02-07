@@ -1,0 +1,224 @@
+<div class="relative min-h-screen overflow-hidden text-[#d8efef]">
+  <div class="absolute inset-0 bg-[radial-gradient(circle_at_20%_10%,rgba(0,255,231,0.14),transparent_35%),radial-gradient(circle_at_80%_85%,rgba(0,255,231,0.08),transparent_40%),linear-gradient(135deg,#03090b,#061417_40%,#020607_100%)]"></div>
+  <div class="absolute inset-0 bg-[linear-gradient(to_right,rgba(130,180,180,0.1)_1px,transparent_1px),linear-gradient(to_bottom,rgba(130,180,180,0.08)_1px,transparent_1px)] [background-size:48px_48px] opacity-25"></div>
+  <div class="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_center,transparent_20%,rgba(0,0,0,0.7)_100%)]"></div>
+
+  <div class="relative z-10 mx-auto w-full max-w-[1500px] px-3 py-3 lg:px-4 lg:py-4">
+    <header class="rounded-2xl border border-[#4f8383]/35 bg-[#041216]/85 px-4 py-3 backdrop-blur-md">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <div class="grid h-10 w-10 place-items-center rounded-xl border border-[#1ed5d5]/40 bg-[#071f23] text-[#50ffff] shadow-[0_0_20px_rgba(40,240,240,0.25)]">
+            <ng-icon name="phosphorNotebook" class="text-lg"></ng-icon>
+          </div>
+          <div>
+            <p class="text-xl font-black tracking-wide text-[#ebffff]">Case File</p>
+            <p class="text-[10px] uppercase tracking-[0.22em] text-[#57b7b7]">Investigation Archive</p>
+            <p class="text-[10px] text-[#78aab2]">Generated through abductive, exploratory reasoning</p>
+          </div>
+        </div>
+
+        <a
+          routerLink="/spaces"
+          class="inline-flex items-center gap-2 rounded-full border border-[#2f6d75] bg-transparent px-3 py-1.5 text-sm text-[#c8ffff] transition-colors hover:bg-[#103038]"
+        >
+          <ng-icon name="phosphorHouse" class="text-sm"></ng-icon>
+          <span>Back to Spaces</span>
+        </a>
+      </div>
+    </header>
+
+    @if (caseFile(); as file) {
+      <main class="mt-3 space-y-4">
+        <section class="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <article class="rounded-2xl border border-[#2f6f76]/70 bg-[#081a21]/80 p-4">
+            <p class="text-[10px] font-black uppercase tracking-[0.18em] text-[#82caca]">Turns Completed</p>
+            <p class="mt-2 text-4xl font-black text-[#ecffff]">{{ file.turn }}</p>
+          </article>
+          <article class="rounded-2xl border border-[#2f6f76]/70 bg-[#081a21]/80 p-4">
+            <p class="text-[10px] font-black uppercase tracking-[0.18em] text-[#82caca]">Conclusions</p>
+            <p class="mt-2 text-4xl font-black text-[#ecffff]">{{ file.conclusions.length }}</p>
+          </article>
+          <article class="rounded-2xl border border-[#2f6f76]/70 bg-[#081a21]/80 p-4">
+            <p class="text-[10px] font-black uppercase tracking-[0.18em] text-[#82caca]">Signal Points</p>
+            <p class="mt-2 text-4xl font-black text-[#ecffff]">{{ (file.conclusions | countEvidences) || 0 }}</p>
+          </article>
+          <article class="rounded-2xl border border-[#2f6f76]/70 bg-[#081a21]/80 p-4">
+            <p class="text-[10px] font-black uppercase tracking-[0.18em] text-[#82caca]">Hypotheses</p>
+            <p class="mt-2 text-4xl font-black text-[#ecffff]">{{ (file.conclusions | countWhatIfs) || 0 }}</p>
+          </article>
+        </section>
+
+        <section class="rounded-2xl border border-[#3f7070]/30 bg-black/20 p-4">
+          <h2 class="text-lg font-black uppercase tracking-[0.14em] text-[#e8ffff]">Investigation Summary</h2>
+          <div class="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
+            <div class="rounded-xl border border-[#2f646e]/70 bg-[#0b2128]/80 p-3 text-center">
+              <p class="text-3xl font-black text-[#ecffff]">{{ summaryTotalTurns(investigationSummary(), file) }}</p>
+              <p class="mt-1 text-xs uppercase tracking-[0.1em] text-[#88b8c0]">Total Turns</p>
+            </div>
+            <div class="rounded-xl border border-[#2f646e]/70 bg-[#0b2128]/80 p-3 text-center">
+              <p class="text-3xl font-black text-[#ecffff]">{{ summaryTotalHypotheses(investigationSummary(), file) }}</p>
+              <p class="mt-1 text-xs uppercase tracking-[0.1em] text-[#88b8c0]">Hypotheses Explored</p>
+            </div>
+            <div class="rounded-xl border border-[#2f646e]/70 bg-[#0b2128]/80 p-3 text-center">
+              <p class="text-3xl font-black text-[#ecffff]">{{ summaryCriticalCount(investigationSummary(), file) }}</p>
+              <p class="mt-1 text-xs uppercase tracking-[0.1em] text-[#88b8c0]">Critical Signals</p>
+            </div>
+          </div>
+
+          <div class="mt-4 rounded-xl border border-[#2f646e]/70 bg-[#0b2128]/80 p-3">
+            <p class="text-[10px] font-black uppercase tracking-[0.16em] text-[#82caca]">Reasoning Path</p>
+            <p class="mt-2 text-sm leading-relaxed text-[#a3c6cd]">{{ summaryReasoningPath(investigationSummary(), file) }}</p>
+          </div>
+
+          @if (summaryDecisiveMoments(investigationSummary(), file).length > 0) {
+            <div class="mt-4 space-y-2">
+              <p class="text-[10px] font-black uppercase tracking-[0.16em] text-[#82caca]">Decisive Moments</p>
+              @for (moment of summaryDecisiveMoments(investigationSummary(), file); track moment.turn) {
+                <div class="flex items-start gap-3 rounded-xl border border-[#2f646e]/70 bg-[#0b2128]/80 p-3">
+                  <span class="rounded-full border border-[#2f6f76] bg-black/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#8bd6dd]">Turn {{ moment.turn }}</span>
+                  <p class="text-sm text-[#a3c6cd]">{{ moment.moment }}</p>
+                </div>
+              }
+            </div>
+          }
+        </section>
+
+        @if (file.finalConclusion) {
+          <section class="rounded-2xl border border-[#3f7070]/30 bg-black/20 p-4">
+            <h2 class="text-lg font-black uppercase tracking-[0.14em] text-[#e8ffff]">Interpretive Model</h2>
+            <p class="mt-1 text-[10px] text-[#78aab2]">Generated through abductive, exploratory reasoning</p>
+            <article class="mt-3 rounded-xl border border-[#2f646e]/70 bg-[#0b2128]/80 p-4">
+              <h3 class="text-xl font-black text-[#efffff]">{{ file.finalConclusion.summary || 'Speculative Synthesis' }}</h3>
+              <p class="mt-2 text-sm leading-relaxed text-[#a3c6cd]">{{ file.finalConclusion.content }}</p>
+              @if (finalConfidence(file)) {
+                <div class="mt-2">
+                  <span class="rounded-full border border-[#2f6f76] bg-black/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#8bd6dd]">
+                    Confidence: {{ finalConfidence(file) }}
+                  </span>
+                </div>
+              }
+              @if (file.finalConclusion.tags && file.finalConclusion.tags.length > 0) {
+                <div class="mt-3 flex flex-wrap gap-2">
+                  @for (tag of file.finalConclusion.tags; track tag) {
+                    <span class="rounded-full border border-[#2f6f76] bg-black/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#8bd6dd]">{{ tag }}</span>
+                  }
+                </div>
+              }
+
+              @if (finalKeyBreakthroughTurn()) {
+                <p class="mt-3 text-xs text-[#8fb6bf]">Key Breakthrough: Turn {{ finalKeyBreakthroughTurn() }}</p>
+              }
+
+              @if (finalSupportingTurns().length > 0) {
+                <p class="mt-1 text-xs text-[#8fb6bf]">Supporting Turns: {{ finalSupportingTurns().join(', ') }}</p>
+              }
+
+              @if (finalAlternativeTheories().length > 0) {
+                <div class="mt-3 space-y-2">
+                  <p class="text-[10px] uppercase tracking-[0.16em] text-[#82caca]">Alternative Theories Ruled Out</p>
+                  @for (theory of finalAlternativeTheories(); track theory.theory) {
+                    <div class="rounded-lg border border-[#2f646e]/70 bg-[#0d232a]/80 p-2">
+                      <p class="text-xs font-semibold text-[#dff7f7]">{{ theory.theory }}</p>
+                      <p class="mt-1 text-xs text-[#9cbec5]">{{ theory.reasonExcluded || theory.reason_excluded }}</p>
+                    </div>
+                  }
+                </div>
+              }
+            </article>
+          </section>
+        }
+
+        <section class="rounded-2xl border border-[#3f7070]/30 bg-black/20 p-4">
+          <h2 class="text-lg font-black uppercase tracking-[0.14em] text-[#e8ffff]">Investigation Chain</h2>
+          <div class="mt-3 space-y-3">
+            @for (conclusion of file.conclusions; track conclusion.id) {
+              <article class="rounded-2xl border border-[#35686f]/70 bg-[#071b22]/85 p-4">
+                <div class="flex items-center justify-between gap-3">
+                  <span class="rounded-full border border-[#2f6f76] bg-black/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#8bd6dd]">Turn {{ conclusion.turn }}</span>
+                  <span class="text-[10px] uppercase tracking-[0.12em] text-[#7cabaf]">Conclusion</span>
+                </div>
+
+                <h3 class="mt-3 text-lg font-black text-[#efffff]">{{ conclusion.summary || 'Findings' }}</h3>
+                @if (conclusion.confidence) {
+                  <div class="mt-2">
+                    <span class="rounded-full border border-[#2f6f76] bg-black/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#8bd6dd]">
+                      Confidence: {{ conclusion.confidence }}
+                    </span>
+                  </div>
+                }
+                <p class="mt-1 text-sm leading-relaxed text-[#8fb6bf]">{{ conclusion.content }}</p>
+
+                @if (conclusion.tags && conclusion.tags.length > 0) {
+                  <div class="mt-3 flex flex-wrap gap-2">
+                    @for (tag of conclusion.tags; track tag) {
+                      <span class="rounded-full border border-[#2f6f76] bg-black/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#8bd6dd]">{{ tag }}</span>
+                    }
+                  </div>
+                }
+
+                @if (conclusion.whatIf) {
+                  <div class="mt-4 rounded-xl border border-cyan-700/60 bg-cyan-950/35 p-3">
+                    <p class="text-[10px] uppercase tracking-[0.18em] text-cyan-300">Exploratory Hypothesis</p>
+                    <p class="mt-1 text-[10px] text-cyan-200/70">Generated through abductive, exploratory reasoning</p>
+                    <p class="mt-1 text-sm font-semibold text-cyan-100">{{ conclusion.whatIf.summary || 'What If?' }}</p>
+                    <p class="mt-1 text-xs text-cyan-200/80">{{ conclusion.whatIf.content }}</p>
+                  </div>
+                }
+
+                @if (conclusion.evidences.length > 0) {
+                  <div class="mt-4">
+                    <p class="mb-2 text-[10px] uppercase tracking-[0.18em] text-[#82caca]">Signals Referenced</p>
+                    <div class="flex flex-wrap gap-2">
+                      @for (ev of conclusion.evidences; track ev.id) {
+                        <div
+                          (click)="viewSignal(ev)"
+                          class="cursor-pointer rounded-full border border-[#2e646f] bg-black/25 px-3 py-1 text-xs text-[#bce7ea] transition-colors hover:bg-[#2e646f]/40 hover:text-white"
+                        >
+                          {{ ev.summary || (ev.content | slice: 0 : 38) }}
+                        </div>
+                      }
+                    </div>
+                  </div>
+                }
+              </article>
+            }
+          </div>
+        </section>
+      </main>
+    } @else {
+      <div class="grid min-h-[70vh] place-items-center">
+        <div class="rounded-xl border border-[#2f5a5a] bg-[#05161a]/90 px-4 py-3 text-sm text-[#b9eaef]">Loading case file...</div>
+      </div>
+    }
+  </div>
+
+  <p-dialog
+    [visible]="displaySignalDialog()"
+    (visibleChange)="displaySignalDialog.set($event)"
+    [modal]="true"
+    [style]="{ width: '50vw', maxWidth: '600px' }"
+    [dismissableMask]="true"
+    [draggable]="false"
+    [resizable]="false"
+    styleClass="mind-palace-dialog"
+  >
+    <ng-template pTemplate="header">
+      <div class="flex items-center gap-2">
+        <div class="grid h-8 w-8 place-items-center rounded-lg border border-[#1ed5d5]/40 bg-[#071f23] text-[#50ffff]">
+          <ng-icon name="phosphorMagnifyingGlass" class="text-lg"></ng-icon>
+        </div>
+        <span class="text-lg font-bold text-[#ebffff]">{{ selectedSignal()?.summary || 'Signal Detail' }}</span>
+      </div>
+    </ng-template>
+    <div class="p-4">
+      <p class="text-sm leading-relaxed text-[#bce7ea]">{{ selectedSignal()?.content }}</p>
+      @if (selectedSignal()?.tags && selectedSignal()?.tags?.length) {
+        <div class="mt-4 flex flex-wrap gap-2">
+          @for (tag of selectedSignal()?.tags; track tag) {
+            <span class="rounded-full border border-[#2f6f76] bg-black/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#8bd6dd]">{{ tag }}</span>
+          }
+        </div>
+      }
+    </div>
+  </p-dialog>
+</div>

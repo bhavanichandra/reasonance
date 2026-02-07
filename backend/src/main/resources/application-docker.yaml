@@ -1,0 +1,24 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${POSTGRES_DB}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+  ai:
+    ollama:
+      base-url: ${OLLAMA_BASE_URL}
+      chat:
+        model: ${OLLAMA_MODEL}
+
+rustfs:
+  url: ${RUSTFS_URL}
+  bucket: ${RUSTFS_BUCKET}
+  access_key_id: ${RUSTFS_ACCESS_KEY}
+  access_secret_key: ${RUSTFS_SECRET_KEY}
+
+app:
+  llm:
+    provider: ${LLM_PROVIDER}
+
+gemini:
+  api-key: ${GEMINI_API_KEY}
+  model: ${GEMINI_MODEL}
